@@ -1,7 +1,6 @@
 import { puzzleInput } from "../../../helpers/puzzleInput.js";
 import Graph from "graphology";
 import { bfsFromNode, dfsFromNode } from 'graphology-traversal';
-import { inspect } from "util";
 
 
 let g = new Graph.UndirectedGraph()
