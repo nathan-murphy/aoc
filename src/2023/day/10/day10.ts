@@ -80,7 +80,7 @@ console.log("area:", area)
 // Pick's theorem
 // A = i + (b/2) - 1
 // area = i + (b/2) - 1
-// i = area - (b/2) - 1
+// i = area - (b/2) + 1
 console.log("interior points:", area - (b / 2) + 1)
 
 function getXYFromI(i: number) {
