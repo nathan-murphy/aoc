@@ -5,92 +5,98 @@ import { bidirectional } from 'graphology-shortest-path';
 
 
 
-const lines = puzzleInputAsLines("C:\\dev\\aoc\\src\\2023\\day\\11\\sample.txt");
+const lines = puzzleInputAsLines("C:\\dev\\aoc\\src\\2023\\day\\11\\input.txt");
 
 
 let input: string[][] = []
 lines.forEach((line, i) => input[i] = [...line.trimEnd()])
-input = expandRows(input)
+let emptyRows = findEmptyRowsIn(input);
 input = transpose(input)
-input = expandRows(input)
+let emptyCols = findEmptyRowsIn(input);
 input = transpose(input)
 
+const pairs = findGalaxyPairs(input)
 
-const g = buildGraphFromInput(input)
+// const g = buildGraphFromInput(input)
 // console.log(inspect(g))
-const pairs = findGalaxyPairs(g)
-// console.log(pairs.length, inspect(pairs))
+console.log(pairs.length, inspect(pairs))
+// console.log(emptyCols, emptyRows)
 
-// let total = 0;
-// for (const pair of pairs) {
-//     total += bidirectional(g, pair.source, pair.target).length - 1
-// }
-// console.log(total)
+let total = 0;
+for (const pair of pairs) {
+    total += distanceBetween(pair, emptyCols, emptyRows)
+}
+console.log(total)
 
-console.log(inspect(pairs))
 
 
 function transpose(matrix: string[][]) {
     return matrix[0].map((col, c) => matrix.map((row, r) => matrix[r][c]));
 }
 
-function expandRows(matrix: string[][]) {
+function findEmptyRowsIn(matrix: string[][]) {
     //look for rows with no galaxies
     let indicesToExpand: number[] = []
     for (let row = 0; row < matrix.length; row++) {
         let numGalaxies = matrix[row].filter(char => char == '#').length
         if (numGalaxies == 0)
-            indicesToExpand.unshift(row)
+            indicesToExpand.push(row)
     }
+    return indicesToExpand;
+}
 
-    //expand empty ones
-    for (let expansion = 0; expansion < 1e6; expansion++) {
-        for (let rowIndex of indicesToExpand) {
-            let emptyLine = [...matrix[rowIndex]]
-            matrix.splice(rowIndex, 0, emptyLine)
+function findGalaxyPairs(input: string[][]) {
+    let galaxies: { x: number, y: number }[] = []
+    for (let y in input) {
+        for (let x in input[y]) {
+            if (input[y][x] == '#')
+                galaxies.push({ 'x': Number(x), 'y': Number(y) })
         }
     }
+    console.log(inspect(galaxies))
 
-    return matrix;
-}
-function buildGraphFromInput(input: string[][]) {
-    let g = new Graph.UndirectedGraph();
-    let galaxyNumber = 1;
-    input.forEach((row, y) => {
-        row.forEach((char, x) => {
-            let n = g.addNode(`${x}, ${y}`, { x: x, y: y, sym: char })
-            if (char == '#') {
-                g.setNodeAttribute(n, 'galaxyNumber', galaxyNumber)
-                galaxyNumber++
-            }
-        })
-    })
-    input.forEach((row, y) => {
-        row.forEach((_, x) => {
-            if (x != row.length - 1)
-                g.addEdge(`${x}, ${y}`, `${x + 1}, ${y}`)
-            if (y != input.length - 1)
-                g.addEdge(`${x}, ${y}`, `${x}, ${y + 1}`)
-        })
-    })
-    return g;
-}
-
-function findGalaxyPairs(g: Graph.UndirectedGraph) {
-    let nodes = g.filterNodes((node, attr) => {
-        return (attr['galaxyNumber'] > 0)
-    })
-
-    let nodePairs: { source: string, target: string }[] = [];
-    nodes.forEach((node, index) => {
-        for (let i = index + 1; i < nodes.length; i++) {
-            nodePairs.push({
-                'source': node,
-                'target': nodes[i]
+    let galaxyPairs: {
+        source: {
+            x: number,
+            y: number
+        },
+        target: {
+            x: number,
+            y: number
+        }
+    }[] = [];
+    galaxies.forEach((g, index) => {
+        for (let i = index + 1; i < galaxies.length; i++) {
+            galaxyPairs.push({
+                'source': { 'x': g.x, 'y': g.y },
+                'target': { 'x': galaxies[i].x, 'y': galaxies[i].y }
             })
         }
     })
-    // console.log(inspect(nodePairs))
-    return nodePairs
+
+    return galaxyPairs
+}
+
+function distanceBetween(pair: {
+    source: {
+        x: number;
+        y: number;
+    }; target: {
+        x: number;
+        y: number;
+    };
+}, emptyCols: number[], emptyRows: number[]): number {
+    let yMin = Math.min(pair.source.y, pair.target.y);
+    let yMax = Math.max(pair.source.y, pair.target.y);
+    let xMin = Math.min(pair.source.x, pair.target.x);
+    let xMax = Math.max(pair.source.x, pair.target.x);
+
+    let distance = (yMax - yMin) + (xMax - xMin);
+
+    //add expansion factor
+    for (let x = xMin; x < xMax; x++) if (emptyCols.includes(x)) distance+=1e6-1;
+    for (let y = yMin; y < yMax; y++) if (emptyRows.includes(y)) distance+=1e6-1;
+
+    return distance;
 }
 
