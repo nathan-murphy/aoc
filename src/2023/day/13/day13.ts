@@ -13,8 +13,6 @@ for (const mapIndex in allMaps) {
     const initCols = transposeArrayOfStrings(rows)
     const initialColReflectionIndex = findReflectionIndex(initCols, -1);
 
-    console.log(`initial row: ${initialRowReflectionIndex}\ninitial col: ${initialColReflectionIndex}`)
-
     for (let smudgeIndex = 0; smudgeIndex < rows[0].length * rows.length; smudgeIndex++) {
 
         let col = smudgeIndex % rows[0].length;
