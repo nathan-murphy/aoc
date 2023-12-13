@@ -17,6 +17,7 @@
     "@types/node": "^20.10.4",
     "graphology": "^0.25.4",
     "graphology-library": "^0.8.0",
-    "graphology-svg": "^0.1.3"
+    "graphology-svg": "^0.1.3",
+    "typescript-memoize": "^1.1.1"
   }
 }
