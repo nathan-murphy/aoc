@@ -47,11 +47,10 @@ let hashValues: number[] = line.split(',').map(code => {
 
 let power: number = 0
 for (const [boxNumber, lenses] of boxes) {
-    power = lenses
-        .reduce((acc, curr, index) => {
-            acc.focalPower += (boxNumber + 1) * (index + 1) * curr.focalPower
-            return acc;
-        }, { label: '', focalPower: power }).focalPower
+    power = lenses.reduce((acc, curr, index) => {
+        acc.focalPower += (boxNumber + 1) * (index + 1) * curr.focalPower
+        return acc;
+    }, { label: '', focalPower: power }).focalPower
 }
 
 // part 1
