@@ -48,27 +48,18 @@ let hashValues: number[] = line.split(',').map(code => {
     return hashVal;
 });
 
-// console.log(inspect(hashValues))
-
-// console.log(hashValues.reduce((acc, val) => acc += val));
-
-let power = 0;
 let boxLensPowers:number[] = [];
 [...boxes.keys()].forEach(key => {
-    //The focusing power of a single lens is the result of multiplying together:
-    
-    // One plus the box number of the lens in question.
-    // The slot number of the lens within the box: 1 for the first lens, 2 for the second lens, and so on.
-    // The focal length of the lens.
     console.log(`key: ${key} ` + inspect(boxes.get(key)))
 
     if(boxes.get(key).length > 0) {
-        boxes.get(key).forEach((lens, index) => {
-            let lensPower = (key+1) * (index+1) * lens.focalPower;
-            console.log(`lens index: ${index+1}, focal power: ${lens.focalPower}, lens power = ${lensPower}`)
-            boxLensPowers.push(lensPower)
-        })
+        boxes.get(key).forEach((lens, index) => 
+            boxLensPowers.push((key+1) * (index+1) * lens.focalPower)
+        )
     }
 })
-console.log(boxLensPowers.reduce((acc, val) => acc += val));
+// part 1
+console.log(hashValues.reduce((acc, val) => acc += val));
 
+// part 2
+console.log(boxLensPowers.reduce((acc, val) => acc += val));
