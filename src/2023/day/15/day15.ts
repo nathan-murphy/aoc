@@ -14,17 +14,17 @@ let hashValues: number[] = line.split(',').map(code => {
                 box = boxes.get(hashVal)
             }
 
-            let lensIndex: number = box.findIndex(lens => lens.label == code.split('=')[0])
+            let newLens = {
+                label: code.split('=')[0],
+                focalPower: Number(code.split('=')[1]),
+            }
+
+            let lensIndex: number = box.findIndex(lens => lens.label == newLens.label)
+            
             if (lensIndex > -1)
-                box.splice(lensIndex, 1, {
-                    label: code.split('=')[0],
-                    focalPower: Number(code.split('=')[1]),
-                })
+                box.splice(lensIndex, 1, newLens)
             else
-                box.push({
-                    label: code.split('=')[0],
-                    focalPower: Number(code.split('=')[1]),
-                });
+                box.push(newLens);
 
             boxes.set(hashVal, box)
         }
