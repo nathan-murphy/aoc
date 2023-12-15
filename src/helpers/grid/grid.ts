@@ -50,7 +50,8 @@ export class Grid {
     }
 
     getColumn(i: number): any[] {
-        let col: any[] = this.data.map(row => col.push(row[i]))
+        let col: any[] = [] 
+        this.data.forEach(row => col.push(row[i]))
         return [...col];
     }
 
@@ -93,11 +94,19 @@ export class StringGrid extends Grid {
     }
 
     stringCols(): string[] {
-        let cols: any[] = [];
+        let cols: string[] = [];
         for (let i = 0; i < this.numCols(); i++) {
             cols.push(this.getStringColumn(i))
         }
         return cols;
+    }
+
+    stringRows(): string[] {
+        let rows: string[] = []
+        for(let i = 0; i < this.numRows();i ++) {
+            rows.push(this.getStringRow(i))
+        }
+        return rows;
     }
 
     getStringColumn(i: number): string {
@@ -110,12 +119,8 @@ export class StringGrid extends Grid {
         return s;
     }
 
-    getStringRows(): string {
-        let s: string[] = []
-        for(let i = 0; i < this.numRows();i ++) {
-            s.push(this.getStringRow(i))
-        }
-        return s.join('\r\n')
+    stringRowsAsString(): string {
+        return this.stringRows().join('\r\n')
     }
 
     getStringColumnSubset(i: number, start: number, end: number): string {

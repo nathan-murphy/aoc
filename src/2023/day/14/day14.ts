@@ -5,31 +5,71 @@ import { inspect } from "util";
 const lines = puzzleInputAsLines('C:\\dev\\aoc\\src\\2023\\day\\14\\input.txt')
 const dirs = ['north', 'west', 'south', 'east']
 const dirFuncs: Record<string, Function> = {
-    'north': StringGrid.prototype.addStringColumnToEnd
+    'north': StringGrid.prototype.addStringColumnToEnd,
+    'west': StringGrid.prototype.addStringRowToBottom,
+    'south': StringGrid.prototype.addStringColumnToEnd,
+    'east': StringGrid.prototype.addStringRowToBottom,
 }
-
 
 const sg = new StringGrid();
 lines.forEach(line => sg.addStringRowToBottom(line.trimEnd()))
 
+let cycleDetector: Record<string, {'iteration': number, 'weight': number}> = {}
+let iterationTracker: Record<number, number> = {}
+let repeatsOn = runCycle(sg, 1000000000);
+let finalWeight = iterationTracker[repeatsOn]
+console.log(inspect(finalWeight))
 
-let newGrid: StringGrid;
-newGrid = tilt(sg, dirs[0])
+function runCycle(start: StringGrid, numCycles: number = 1000000000) {
+    let next: StringGrid = start;
+    for(let i = 0; i < numCycles; i++) {
+        dirs.forEach((dir: string) => next = tilt(next, dir))
+        let key = next.stringRowsAsString();
 
-let weight = calcWeight(newGrid)
+        // if encountering a new configuration of stones ...
+        if(cycleDetector[key] == undefined) {
+            
+            //calculate and store the weight ...
+            let weight = calcWeight(next);
 
-console.log(weight)
+            cycleDetector[key] = {'iteration': i+1, 'weight': weight}
+            iterationTracker[i+1] = weight
+        }
+        // if this configuration has been seen before, it will play out exactly as before
+        else {
+            let weight = calcWeight(next);
+            iterationTracker[i+1] = weight
+            let startPattern = cycleDetector[key].iteration-1;
+            let endPattern = i
+            let patternLength = endPattern - startPattern
+            let offset = startPattern
+            let iterationEndsOn = (numCycles - offset) % patternLength
+            return iterationEndsOn
+        }
+    }
+}
 
-
-function tilt(g: StringGrid, direction: string): StringGrid {
-    console.time();
+function tilt(grid: StringGrid, direction: string): StringGrid {
+    // console.time();
     const tiltedGrid = new StringGrid();
-    for (let i of g.stringCols()) {
-        let tilted: string = i.split('#').map(s => moveRoundRocks(s)).join('#')
+    let rowOrCol: string[] = []
+    switch (direction) {
+        case 'north':
+        case 'south':
+            rowOrCol = grid.stringCols()
+            break;
+        case 'west':
+        case 'east':
+            rowOrCol = grid.stringRows()
+            break;
+        default:
+            break;
+    }
+    for (let i of rowOrCol) {
+        let tilted: string = i.split('#').map(s => moveRoundRocks(s, direction)).join('#')
         dirFuncs[direction].call(tiltedGrid, tilted)
     }
-
-    console.timeEnd();
+    // console.timeEnd();
     return tiltedGrid;
 }
 
@@ -43,9 +83,18 @@ function calcWeight(g: StringGrid) {
     return overallWeight;
 }
 
-function moveRoundRocks(s: string) {
+function moveRoundRocks(s: string, direction: string) {
     let numRoundRocks = [...s].filter(c => c == 'O').length
     let rocks = 'O'.repeat(numRoundRocks)
     let blanks = '.'.repeat(s.length - numRoundRocks)
-    return rocks + blanks;
+    switch (direction) {
+        case 'north':
+        case 'west':
+            return rocks + blanks
+        case 'south':
+        case 'east':
+            return blanks + rocks
+        default:
+            return
+    }
 }
