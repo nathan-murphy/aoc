@@ -1,7 +1,7 @@
 import { inspect } from "util";
 import { puzzleInput } from "../../../helpers/puzzleInput.js";
 
-const line = puzzleInput('C:\\dev\\aoc\\src\\2023\\day\\15\\input.txt')
+const line = puzzleInput('C:\\dev\\aoc\\src\\2023\\day\\15\\sample.txt')
 
 let boxes = new Map<number, { label: string, focalPower: number }[]>()
 
@@ -20,7 +20,7 @@ let hashValues: number[] = line.split(',').map(code => {
             }
 
             let lensIndex: number = box.findIndex(lens => lens.label == newLens.label)
-            
+
             if (lensIndex > -1)
                 box.splice(lensIndex, 1, newLens)
             else
@@ -46,11 +46,8 @@ let hashValues: number[] = line.split(',').map(code => {
 });
 
 let boxLensPowers: number[] = [];
-[...boxes.keys()].forEach(key => {
-    boxes.get(key).forEach((lens, index) =>
-        boxLensPowers.push((key + 1) * (index + 1) * lens.focalPower)
-    )
-})
+for (const [boxNumber, lenses] of boxes)
+    boxLensPowers.push(...lenses.map((lens, lensIndex) => (boxNumber + 1) * (lensIndex + 1) * lens.focalPower))
 
 // part 1
 console.log(hashValues.reduce((acc, val) => acc += val));
